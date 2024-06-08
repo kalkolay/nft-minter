@@ -3,9 +3,12 @@ import bodyParser from "body-parser";
 import { Keypair, PublicKey } from "@solana/web3.js";
 import { createNft, mintNft } from "./tokens";
 import { loadKeypairFromFile } from "./util";
+import path from "path";
 
 // Load the payer keypair
-const payer = loadKeypairFromFile("../id.json",);
+const payer = loadKeypairFromFile(
+    path.join(__dirname, "..", "id.json"),
+);
 
 const app = express();
 const port = process.env.PORT || 3000;
