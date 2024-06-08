@@ -5,9 +5,7 @@ import { createNft, mintNft } from "./tokens";
 import { loadKeypairFromFile } from "./util";
 
 // Load the payer keypair
-const payer = loadKeypairFromFile(
-    require("os").homedir() + "/.config/solana/id.json",
-);
+const payer = loadKeypairFromFile("id.json",);
 
 const app = express();
 const port = process.env.PORT || 3000;
