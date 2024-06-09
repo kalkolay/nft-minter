@@ -1,38 +1,60 @@
-# NFT Minter
+# Solana NFT Minting and Transfer Service
 
-Minting NFTs is exactly the same as
-[minting any SPL Token on Solana](../spl-token-minter/), except for immediately
-after the actual minting has occurred.
+This project provides a REST API service for minting and transferring NFTs on the Solana blockchain. The service is built using Express.js and interacts with the Solana blockchain using the `@solana/web3.js` and `@metaplex-foundation/mpl-token-metadata` libraries.
 
-What does this mean? Well, when you mint SPL Tokens, you can attach a fixed
-supply, but in most cases you can continue to mint new tokens at will -
-increasing the supply of that token.
+Deployed on [Heroku](https://dashboard.heroku.com/).
 
-With an NFT, you're supposed to only have **one**.
+## API Endpoints
 
-So, how do we ensure only one single token can be minted for any NFT?
+### Mint NFT
 
----
+**Endpoint:**
+```
+POST /give-nft
+```
+**Query Parameters:**
+- `wallet` (*string*): The recipient’s wallet address.
+- `name` (*string*): The name of the NFT.
+- `symbol` (*string*): The symbol of the NFT.
+- `imageUri` (*string*): The URI of the image for the NFT.
+**Example Request:**
+```bash
+curl -X POST "https://nft-miner-0c0f7df50061.herokuapp.com/give-nft?wallet=RecipientWalletPublicKey&name=YourNFTName&symbol=YourNFTSymbol&imageUri=YourImageURI"
+```
+**Response:**
+```json
+{
+    "message": "NFT successfully minted and sent to RecipientWalletPublicKey",
+    "mintAddress": "GeneratedMintAddress"
+}
+```
 
-We have to disable minting by changing the Mint Authority on the Mint.
+### Transfer NFT
 
-> The Mint Authority is the account that is permitted to mint new tokens into
-> supply.
+**Endpoint:**
+```
+POST /transfer-nft
+```
+**Query Parameters:**
+- `fromWallet` (*string*): The sender’s wallet address.
+- `toWallet` (*string*): The recipient’s wallet address.
+- `mintAddress` (*string*): The mint address of the NFT.
+  **Example Request:**
+```bash
+curl -X POST "https://nft-miner-0c0f7df50061.herokuapp.com/transfer-nft?fromWallet=SenderWalletPublicKey&toWallet=RecipientWalletPublicKey&mintAddress=NFTMintAddress"
+```
+**Response:**
+```
+Successfully transferred NFT from SenderWalletPublicKey to RecipientWalletPublicKey
+```
 
-If we remove this authority - effectively setting it to `null` - we can disable
-minting of new tokens for this Mint.
+## Project Structure
 
-> By design, **this is irreversible**.
+- `src/`
+  - `ver.ts`: Entry point for the Express server. 
+  - `tokens.ts`: Contains functions for creating, minting, and transferring NFTs. 
+  - `utl.ts`: Utility functions for handling Solana keypairs and transactions.
 
----
+___
 
-Although we can set this authority to `null` manually, we can also make use of
-Metaplex again, this time to mark our NFT as Limited Edition.
-
-When we use an Edition - such as a Master Edition - for our NFT, we get some
-extra metadata associated with our NFT and we also get our Mint Authority
-deactivated by delegating this authority to the Master Edition account.
-
-This will effectively disable future minting, but make sure you understand the
-ramifications of having the Master Edition account be the Mint Authority -
-rather than setting it permanently to `null`.
+Made by **AI Digital Creators** for Compass Hackathon 2024.
