@@ -2,6 +2,8 @@
 
 This project provides a REST API service for minting and transferring NFTs on the Solana blockchain. The service is built using Express.js and interacts with the Solana blockchain using the `@solana/web3.js` and `@metaplex-foundation/mpl-token-metadata` libraries.
 
+It is also possible to mint NFT by this website on its [main page](https://nft-miner-0c0f7df50061.herokuapp.com).
+
 Deployed on [Heroku](https://dashboard.heroku.com/).
 
 ## API Endpoints
@@ -51,10 +53,11 @@ Successfully transferred NFT from SenderWalletPublicKey to RecipientWalletPublic
 ## Project Structure
 
 - `src/`
-  - `ver.ts`: Entry point for the Express server. 
+  - `server.ts`: Entry point for the Express server. 
   - `tokens.ts`: Contains functions for creating, minting, and transferring NFTs. 
-  - `utl.ts`: Utility functions for handling Solana keypairs and transactions.
-
+  - `util.ts`: Utility functions for handling Solana keypairs and transactions.
+- `public\`
+  - `index.html`: Main HTML page
 ___
 
 Made by **AI Digital Creators** for Compass Hackathon 2024.

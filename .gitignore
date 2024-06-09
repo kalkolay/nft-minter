@@ -29,7 +29,7 @@ Thumbs.db
 *.sln
 
 # Solana related files
-id.json
+#id.json
 
 # Temporary files
 tmp/

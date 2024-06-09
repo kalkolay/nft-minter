@@ -18,25 +18,44 @@ const web3_js_1 = require("@solana/web3.js");
 const tokens_1 = require("./tokens");
 const util_1 = require("./util");
 const path_1 = __importDefault(require("path"));
+const node_fetch_1 = __importDefault(require("node-fetch"));
 // Load the payer keypair from the root folder of the project
 const payer = (0, util_1.loadKeypairFromFile)(path_1.default.join(__dirname, "..", "id.json"));
 const app = (0, express_1.default)();
 const port = process.env.PORT || 3000;
 // Middleware to parse JSON bodies
 app.use(body_parser_1.default.json());
+// Serve static files from the 'public' directory
+app.use(express_1.default.static(path_1.default.join(__dirname, "..", "public")));
+// Route handler for the root URL
+app.get('/', (req, res) => {
+    res.sendFile(path_1.default.join(__dirname, '..', 'public', 'index.html'));
+});
 // Endpoint to mint NFT
 app.post("/give-nft", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const walletAddress = req.query.wallet;
+    const username = req.query.username;
     const name = req.query.name;
     const symbol = req.query.symbol;
     const imageUri = req.query.imageUri;
-    if (!walletAddress) {
-        return res.status(400).send("Wallet address is required");
-    }
+    let walletAddress = req.query.wallet;
     if (!name || !symbol || !imageUri) {
-        return res.status(400).send("Name, symbol, and imageUri are required");
+        return res.status(400).send({ error: "Name, symbol, and imageUri are required" });
     }
     try {
+        if (!walletAddress) {
+            // Fetch the wallet address from the Google Sheet using Instagram username
+            const sheetUrl = "https://api.sheety.co/0bf9aeca2aa96fa235902765caab8a5c/participantsCompassHackathon2024/sheet1";
+            const sheetResponse = yield (0, node_fetch_1.default)(sheetUrl);
+            const sheetData = yield sheetResponse.json();
+            const participant = sheetData.sheet1.find((p) => p.participantInstagramUsername === username);
+            if (participant) {
+                walletAddress = participant.participantWallet;
+                console.log(`Fetched wallet address for username ${username}: ${walletAddress}`);
+            }
+        }
+        if (!walletAddress) {
+            return res.status(400).send({ error: "Wallet address not found in sheet and not provided in request" });
+        }
         const recipientPublicKey = new web3_js_1.PublicKey(walletAddress);
         const mintKeypair = web3_js_1.Keypair.generate();
         // Create the NFT
@@ -49,8 +68,8 @@ app.post("/give-nft", (req, res) => __awaiter(void 0, void 0, void 0, function* 
         });
     }
     catch (error) {
-        console.error(error);
-        res.status(500).send("An error occurred while minting the NFT");
+        console.error("An error occurred while minting the NFT:", error);
+        res.status(500).send({ error: "An error occurred while minting the NFT" });
     }
 }));
 // Endpoint to transfer NFT
@@ -70,7 +89,7 @@ app.post("/transfer-nft", (req, res) => __awaiter(void 0, void 0, void 0, functi
         res.status(200).send(`Successfully transferred NFT from ${fromWallet} to ${toWallet}`);
     }
     catch (error) {
-        console.error(error);
+        console.error("An error occurred while transferring the NFT:", error);
         res.status(500).send("An error occurred while transferring the NFT");
     }
 }));

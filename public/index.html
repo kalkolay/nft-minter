@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solana NFT Minting Service</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+    <style>
+        .nft-card {
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .nft-card:hover {
+            transform: scale(1.05);
+        }
+        .nft-card.selected {
+            border: 4px solid #4299e1;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-center mb-8">Solana NFT Minting Service</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+        <!-- Predefined NFTs -->
+        <div class="bg-white shadow-md rounded-lg p-6 text-center nft-card" data-name="Compass2024" data-symbol="CMPS" data-imageUri="https://static.tildacdn.one/tild6437-3536-4164-a261-333138646131/Compass_Pattern_Seas.jpg">
+            <img src="https://static.tildacdn.one/tild6437-3536-4164-a261-333138646131/Compass_Pattern_Seas.jpg" alt="Compass2024" class="w-full h-48 object-cover mb-4">
+            <h2 class="text-xl font-bold mb-2">Compass2024</h2>
+            <p class="text-gray-700">Symbol: CMPS</p>
+        </div>
+        <div class="bg-white shadow-md rounded-lg p-6 text-center nft-card" data-name="SpecialNFT" data-symbol="SNFT" data-imageUri="https://static.onecms.io/wp-content/uploads/sites/6/2018/08/simp_homersingle08_f_hires2-2000.jpg">
+            <img src="https://static.onecms.io/wp-content/uploads/sites/6/2018/08/simp_homersingle08_f_hires2-2000.jpg" alt="SpecialNFT" class="w-full h-48 object-cover mb-4">
+            <h2 class="text-xl font-bold mb-2">SpecialNFT</h2>
+            <p class="text-gray-700">Symbol: SNFT</p>
+        </div>
+        <div class="bg-white shadow-md rounded-lg p-6 text-center nft-card" data-name="CS_GO_NFT" data-symbol="CSGO" data-imageUri="https://www.dictionary.com/e/wp-content/uploads/2018/07/CS-GO3.jpg">
+            <img src="https://www.dictionary.com/e/wp-content/uploads/2018/07/CS-GO3.jpg" alt="CS_GO_NFT" class="w-full h-48 object-cover mb-4">
+            <h2 class="text-xl font-bold mb-2">CS_GO_NFT</h2>
+            <p class="text-gray-700">Symbol: CSGO</p>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md rounded-lg p-6">
+        <h2 class="text-xl font-bold mb-4 text-center">Mint an NFT</h2>
+        <form id="mintForm" class="text-center">
+            <input type="text" id="username" placeholder="Enter Instagram Username" class="border rounded-lg px-4 py-2 mb-4 w-full">
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg">Give NFT</button>
+        </form>
+        <div id="responseMessage" class="mt-4 text-center"></div>
+    </div>
+</div>
+
+<script>
+    const nftCards = document.querySelectorAll('.nft-card');
+    let selectedNFT = null;
+
+    nftCards.forEach(card => {
+        card.addEventListener('click', () => {
+            if (selectedNFT) {
+                selectedNFT.classList.remove('selected');
+            }
+            selectedNFT = card;
+            selectedNFT.classList.add('selected');
+        });
+    });
+
+    document.getElementById('mintForm').addEventListener('submit', async function(event) {
+        event.preventDefault();
+        const username = document.getElementById('username').value;
+        const responseMessage = document.getElementById('responseMessage');
+
+        if (!selectedNFT) {
+            responseMessage.textContent = "Please select an NFT.";
+            responseMessage.classList.add('text-red-500');
+            return;
+        }
+
+        const name = selectedNFT.getAttribute('data-name');
+        const symbol = selectedNFT.getAttribute('data-symbol');
+        const imageUri = selectedNFT.getAttribute('data-imageUri');
+
+        try {
+            const response = await fetch(`/give-nft?username=${username}&name=${name}&symbol=${symbol}&imageUri=${imageUri}`, {
+                method: 'POST'
+            });
+
+            const result = await response.json();
+            if (response.ok) {
+                responseMessage.textContent = `NFT successfully minted! Mint address: ${result.mintAddress}`;
+                responseMessage.classList.add('text-green-500');
+            } else {
+                responseMessage.textContent = `Error: ${result.error}`;
+                responseMessage.classList.add('text-red-500');
+            }
+        } catch (error) {
+            responseMessage.textContent = `Error: ${error.message}`;
+            responseMessage.classList.add('text-red-500');
+        }
+    });
+</script>
+</body>
+</html>
