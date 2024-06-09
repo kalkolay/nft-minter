@@ -1,6 +1,6 @@
 {
 	"scripts": {
-		"start": "ts-node ./src/server.ts",
+		"start": "ts-node ./src/server.ts"
 	},
 	"license": "MIT",
 	"dependencies": {
